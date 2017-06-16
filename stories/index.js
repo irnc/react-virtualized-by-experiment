@@ -2,6 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
+import { withKnobs, select } from '@storybook/addon-knobs';
 import { Grid, ArrowKeyStepper } from 'react-virtualized';
 import Button from './Button';
 import Welcome from './Welcome';
@@ -65,6 +66,7 @@ storiesOf('Grid', module)
     >
     </Grid>
   ))
+  .addDecorator(withKnobs)
   .add('with ArrowKeyStepper', () => {
     // Counts are provided from above.
     const columnCount = 1;
@@ -73,10 +75,21 @@ storiesOf('Grid', module)
     const rowHeight = 100;
     const gridHeight = rowHeight * simultaneouslyVisibleRows;
 
+    const label = 'mode';
+    const options = {
+      edges: 'edges',
+      // Note how cells mode allow navigation on visible cells without moving
+      // visible window.
+      cells: 'cells',
+    };
+    // edges mode is default in ArrowKeyStepper
+    const defaultValue = 'edges';
+
     return (
       <ArrowKeyStepper
         columnCount={columnCount}
         rowCount={rowCount}
+        mode={select(label, options, defaultValue)}
       >
         {({ onSectionRendered, scrollToColumn, scrollToRow }) => (
           <Grid
