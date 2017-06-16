@@ -66,6 +66,26 @@ storiesOf('Grid', module)
     >
     </Grid>
   ))
+  .add('with hidden scrollbar (WIP)', () => (
+    // It is not possible to hide scrollbar using overflow on container style,
+    // as it is Grid who adds scroll, not internal container.
+    //
+    // - `containerStyle={{ overflow: 'hidden' }}` doesn't work
+    //
+    // ::-webkit-scrollbar { display: none } may work, but we couldn't style
+    // pseaudo-elements using style prop. Instead we should try
+    // styled-components wrapping or a custom className.
+    <Grid
+      width={500}
+      columnWidth={250}
+      height={200}
+      rowHeight={100}
+      columnCount={1}
+      rowCount={10}
+      cellRenderer={cellRenderer}
+    >
+    </Grid>
+  ))
   .addDecorator(withKnobs)
   .add('with ArrowKeyStepper', () => {
     // Counts are provided from above.
