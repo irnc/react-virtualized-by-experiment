@@ -28,6 +28,41 @@ function cellRenderer ({ columnIndex, key, rowIndex, style }) {
   )
 }
 
+class ActiveCellRenderer extends React.Component {
+  state = {
+    scrollToRow: 0,
+    scrollToColumn: 0,
+  }
+
+  cellRenderer = ({ columnIndex, key, rowIndex, style }) => {
+    const borderColor = (rowIndex === this.state.scrollToRow) ? 'red' : 'blue';
+    return (
+      <div
+        onClick={() => this.onActiveCellToChange({ scrollToColumn: columnIndex, scrollToRow: rowIndex })}
+        key={key}
+        style={{
+          ...style,
+          boxSizing: 'border-box',
+          border: '5px solid',
+          borderColor,
+        }}
+      >
+        {key}
+      </div>
+    )
+  }
+
+  onActiveCellToChange = ({ scrollToColumn, scrollToRow }) => {
+    this.setState({ scrollToColumn, scrollToRow });
+  }
+
+  render() {
+    const { onActiveCellToChange, cellRenderer } = this;
+    const { scrollToColumn, scrollToRow } = this.state;
+    return this.props.children({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow });
+  }
+}
+
 storiesOf('Grid', module)
   .add('with list of one item', () => (
     <Grid
@@ -138,41 +173,6 @@ storiesOf('Grid', module)
     const simultaneouslyVisibleRows = 3;
     const rowHeight = 100;
     const gridHeight = rowHeight * simultaneouslyVisibleRows;
-
-    class ActiveCellRenderer extends React.Component {
-      state = {
-        scrollToRow: 0,
-        scrollToColumn: 0,
-      }
-
-      cellRenderer = ({ columnIndex, key, rowIndex, style }) => {
-        const borderColor = (rowIndex === this.state.scrollToRow) ? 'red' : 'blue';
-        return (
-          <div
-            onClick={() => this.onActiveCellToChange({ scrollToColumn: columnIndex, scrollToRow: rowIndex })}
-            key={key}
-            style={{
-              ...style,
-              boxSizing: 'border-box',
-              border: '5px solid',
-              borderColor,
-            }}
-          >
-            {key}
-          </div>
-        )
-      }
-
-      onActiveCellToChange = ({ scrollToColumn, scrollToRow }) => {
-        this.setState({ scrollToColumn, scrollToRow });
-      }
-
-      render() {
-        const { onActiveCellToChange, cellRenderer } = this;
-        const { scrollToColumn, scrollToRow } = this.state;
-        return this.props.children({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow });
-      }
-    }
 
     return (
       <ActiveCellRenderer>
