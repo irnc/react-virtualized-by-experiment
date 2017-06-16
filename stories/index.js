@@ -130,4 +130,81 @@ storiesOf('Grid', module)
         )}
       </ArrowKeyStepper>
     );
+  })
+  .add('with active cell tracking', (...a) => {
+    // Counts are provided from above.
+    const columnCount = 1;
+    const rowCount = 10;
+    const simultaneouslyVisibleRows = 3;
+    const rowHeight = 100;
+    const gridHeight = rowHeight * simultaneouslyVisibleRows;
+
+    class ActiveCellRenderer extends React.Component {
+      state = {
+        scrollToRow: 0,
+        scrollToColumn: 0,
+      }
+
+      cellRenderer = ({ columnIndex, key, rowIndex, style }) => {
+        const borderColor = (rowIndex === this.state.scrollToRow) ? 'red' : 'blue';
+        return (
+          <div
+            onClick={() => this.onActiveCellToChange({ scrollToColumn: columnIndex, scrollToRow: rowIndex })}
+            key={key}
+            style={{
+              ...style,
+              boxSizing: 'border-box',
+              border: '5px solid',
+              borderColor,
+            }}
+          >
+            {key}
+          </div>
+        )
+      }
+
+      onActiveCellToChange = ({ scrollToColumn, scrollToRow }) => {
+        this.setState({ scrollToColumn, scrollToRow });
+      }
+
+      render() {
+        const { onActiveCellToChange, cellRenderer } = this;
+        const { scrollToColumn, scrollToRow } = this.state;
+        return this.props.children({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow });
+      }
+    }
+
+    return (
+      <ActiveCellRenderer>
+        {({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow }) => (
+          <ArrowKeyStepper
+            columnCount={columnCount}
+            rowCount={rowCount}
+            mode="cells"
+            isControlled={true}
+            onScrollToChange={onActiveCellToChange}
+            scrollToColumn={scrollToColumn}
+            scrollToRow={scrollToRow}
+          >
+            {({ onSectionRendered, scrollToColumn, scrollToRow }) => (
+              <Grid
+                // required Grid props
+                width={500}
+                columnWidth={250}
+                height={gridHeight}
+                rowHeight={rowHeight}
+                columnCount={columnCount}
+                rowCount={rowCount}
+                cellRenderer={cellRenderer}
+                // required to be passed for ArrowKeyStepper to work
+                onSectionRendered={onSectionRendered}
+                scrollToColumn={scrollToColumn}
+                scrollToRow={scrollToRow}
+              >
+              </Grid>
+            )}
+          </ArrowKeyStepper>
+        )}
+      </ActiveCellRenderer>
+    );
   });
