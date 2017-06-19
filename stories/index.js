@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import { Grid, ArrowKeyStepper, List } from 'react-virtualized';
+import { Grid, ArrowKeyStepper, List, InfiniteLoader } from 'react-virtualized';
 import Button from './Button';
 import Welcome from './Welcome';
 
@@ -83,6 +83,12 @@ class ActiveCellRenderer extends ActiveRenderer {
 class ActiveRowRenderer extends ActiveRenderer {
   renderer = ({ index, key, style }) => {
     const borderColor = (index === this.state.scrollToRow) ? 'red' : 'blue';
+
+    let text = key;
+    if (this.props.list) {
+      text = `${key} - ${this.props.list[index]}`;
+    }
+
     return (
       <div
         onClick={() => this.onScrollToChange({ scrollToColumn: 1, scrollToRow: index })}
@@ -94,9 +100,43 @@ class ActiveRowRenderer extends ActiveRenderer {
           borderColor,
         }}
       >
-        {key}
+        {text}
       </div>
     );
+  }
+}
+
+class RemoteListContainer extends React.Component {
+  state = {
+    list: [],
+    rowCount: 100,
+  }
+
+  isRowLoaded = ({ index }) => {
+    return !!this.state.list[index];
+  }
+
+  loadMoreRows = ({ startIndex, stopIndex }) => {
+    console.log(`loadMoreRows ${startIndex}, ${stopIndex}`);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const list = Array.from(this.state.list);
+        for (let i = startIndex; i <= stopIndex; i++) {
+          list[i] = Math.random();
+        }
+        this.setState({ list });
+        if (this.state.rowCount === 0) {
+          this.setState({ rowCount: 100 });
+        }
+        resolve();
+      }, 1000);
+    })
+  }
+
+  render() {
+    const { isRowLoaded, loadMoreRows } = this;
+    const { rowCount, list } = this.state;
+    return this.props.children({ isRowLoaded, loadMoreRows, rowCount, list });
   }
 }
 
@@ -398,5 +438,79 @@ storiesOf('Grid', module)
           </PageStepper>
         )}
       </ActiveRowRenderer>
+    );
+  })
+  .add('with infinite loader', () => {
+    // Counts are provided from above.
+    const columnCount = 1;
+    const pageSize = 3;
+    const rowHeight = 100;
+    const gridHeight = rowHeight * pageSize;
+
+    return (
+      <RemoteListContainer>
+        {({ isRowLoaded, loadMoreRows, rowCount, list }) => (
+          <InfiniteLoader
+            isRowLoaded={isRowLoaded}
+            loadMoreRows={loadMoreRows}
+            rowCount={rowCount}
+            threshold={pageSize}
+            minimumBatchSize={pageSize}
+          >
+            {({ onRowsRendered: notifyLoaderOnRowsRendered, registerChild }) => (
+              <ActiveRowRenderer list={list}>
+                {({ onScrollToChange, renderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
+                  <PageStepper
+                    rowCount={rowCount}
+                    onScrollToChange={onScrollToChange}
+                    pageSize={pageSize}
+                    scrollToRow={scrollToRow}
+                    scrollToPreviousPage={scrollToPreviousPage}
+                    scrollToNextPage={scrollToNextPage}
+                  >
+                    <ArrowKeyStepper
+                      columnCount={columnCount}
+                      rowCount={rowCount}
+                      mode="cells"
+                      isControlled={true}
+                      onScrollToChange={onScrollToChange}
+                      scrollToColumn={scrollToColumn}
+                      scrollToRow={scrollToRow}
+                    >
+                      {({ onSectionRendered, scrollToColumn, scrollToRow }) => (
+                        <List
+                          // required Grid props
+                          width={500}
+                          height={gridHeight}
+                          rowHeight={rowHeight}
+                          rowCount={rowCount}
+                          rowRenderer={renderer}
+                          // required to be passed for ArrowKeyStepper to work
+                          onRowsRendered={({ startIndex, stopIndex }) => {
+                            console.log(`onRowsRendered ${startIndex}, ${stopIndex}`)
+                            notifyLoaderOnRowsRendered({ startIndex, stopIndex });
+                            onSectionRendered({
+                              columnStartIndex: 1,
+                              columnStopIndex: 1,
+                              rowStartIndex: startIndex,
+                              rowStopIndex: stopIndex,
+                            });
+                          }}
+                          scrollToIndex={scrollToRow}
+                          scrollToAlignment={scrollToAlignment}
+
+                          // register child for InfiniteLoader
+                          ref={registerChild}
+                        >
+                        </List>
+                      )}
+                    </ArrowKeyStepper>
+                  </PageStepper>
+                )}
+              </ActiveRowRenderer>
+            )}
+          </InfiniteLoader>
+        )}
+      </RemoteListContainer>
     );
   });
