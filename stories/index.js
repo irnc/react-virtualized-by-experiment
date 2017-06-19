@@ -251,7 +251,7 @@ storiesOf('Grid', module)
 
 
     function PageStepper({
-      onActiveCellToChange,
+      onScrollToChange,
       activeRow,
       children,
       scrollToPreviousPage,
@@ -263,12 +263,12 @@ storiesOf('Grid', module)
         switch (event.key) {
           case 'PageUp':
             event.preventDefault();
-            onActiveCellToChange(scrollToPreviousPage({ pageSize: step, activeRow }));
+            onScrollToChange(scrollToPreviousPage({ pageSize: step, activeRow }));
             break;
 
           case 'PageDown':
             event.preventDefault();
-            onActiveCellToChange(scrollToNextPage({ pageSize: step, activeRow }));
+            onScrollToChange(scrollToNextPage({ pageSize: step, activeRow }));
             break;
         }
       };
@@ -282,7 +282,7 @@ storiesOf('Grid', module)
       <ActiveCellRenderer>
         {({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
           <PageStepper
-            onActiveCellToChange={onActiveCellToChange}
+            onScrollToChange={onActiveCellToChange}
             activeRow={scrollToRow}
             scrollToPreviousPage={scrollToPreviousPage}
             scrollToNextPage={scrollToNextPage}
