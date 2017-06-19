@@ -100,23 +100,22 @@ const scrollToNextPage = ({ rowCount, pageSize, activeRow }) => {
 function PageStepper({
   onScrollToChange,
   rowCount,
+  pageSize,
   scrollToRow,
   children,
   scrollToPreviousPage,
   scrollToNextPage,
 }) {
-  // TODO receive step from props
-  const step = 3;
   const onKeyDown = (event) => {
     switch (event.key) {
       case 'PageUp':
         event.preventDefault();
-        onScrollToChange(scrollToPreviousPage({ pageSize: step, activeRow: scrollToRow }));
+        onScrollToChange(scrollToPreviousPage({ pageSize, activeRow: scrollToRow }));
         break;
 
       case 'PageDown':
         event.preventDefault();
-        onScrollToChange(scrollToNextPage({ rowCount, pageSize: step, activeRow: scrollToRow }));
+        onScrollToChange(scrollToNextPage({ rowCount, pageSize, activeRow: scrollToRow }));
         break;
     }
   };
@@ -275,9 +274,9 @@ storiesOf('Grid', module)
     // Counts are provided from above.
     const columnCount = 1;
     const rowCount = 10;
-    const simultaneouslyVisibleRows = 3;
+    const pageSize = 3;
     const rowHeight = 100;
-    const gridHeight = rowHeight * simultaneouslyVisibleRows;
+    const gridHeight = rowHeight * pageSize;
 
     return (
       <ActiveCellRenderer>
@@ -285,6 +284,7 @@ storiesOf('Grid', module)
           <PageStepper
             rowCount={rowCount}
             onScrollToChange={onActiveCellToChange}
+            pageSize={pageSize}
             scrollToRow={scrollToRow}
             scrollToPreviousPage={scrollToPreviousPage}
             scrollToNextPage={scrollToNextPage}
