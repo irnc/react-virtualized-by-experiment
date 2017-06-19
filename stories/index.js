@@ -235,16 +235,16 @@ storiesOf('Grid', module)
       const adjustment = (activeRow % pageSize) + 1;
 
       return {
-        scrollToRow: activeRow - adjustment,
+        scrollToRow: Math.max(0, activeRow - adjustment),
         scrollToAlignment: 'end',
       };
     };
 
-    const scrollToNextPage = ({ pageSize, activeRow }) => {
+    const scrollToNextPage = ({ rowCount, pageSize, activeRow }) => {
       const adjustment = pageSize - (activeRow % pageSize);
 
       return {
-        scrollToRow: activeRow + adjustment,
+        scrollToRow: Math.min(activeRow + adjustment, rowCount - 1),
         scrollToAlignment: 'start',
       };
     };
@@ -252,6 +252,7 @@ storiesOf('Grid', module)
 
     function PageStepper({
       onScrollToChange,
+      rowCount,
       activeRow,
       children,
       scrollToPreviousPage,
@@ -268,7 +269,7 @@ storiesOf('Grid', module)
 
           case 'PageDown':
             event.preventDefault();
-            onScrollToChange(scrollToNextPage({ pageSize: step, activeRow }));
+            onScrollToChange(scrollToNextPage({ rowCount, pageSize: step, activeRow }));
             break;
         }
       };
@@ -282,6 +283,7 @@ storiesOf('Grid', module)
       <ActiveCellRenderer>
         {({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
           <PageStepper
+            rowCount={rowCount}
             onScrollToChange={onActiveCellToChange}
             activeRow={scrollToRow}
             scrollToPreviousPage={scrollToPreviousPage}
