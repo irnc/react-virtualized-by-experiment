@@ -231,25 +231,44 @@ storiesOf('Grid', module)
     const rowHeight = 100;
     const gridHeight = rowHeight * simultaneouslyVisibleRows;
 
-    function PageStepper({ onActiveCellToChange, activeColumn, activeRow, children }) {
+    const scrollToPreviousPage = ({ pageSize, activeRow }) => {
+      const adjustment = (activeRow % pageSize) + 1;
+
+      return {
+        scrollToRow: activeRow - adjustment,
+        scrollToAlignment: 'end',
+      };
+    };
+
+    const scrollToNextPage = ({ pageSize, activeRow }) => {
+      const adjustment = pageSize - (activeRow % pageSize);
+
+      return {
+        scrollToRow: activeRow + adjustment,
+        scrollToAlignment: 'start',
+      };
+    };
+
+
+    function PageStepper({
+      onActiveCellToChange,
+      activeRow,
+      children,
+      scrollToPreviousPage,
+      scrollToNextPage,
+    }) {
       // TODO receive step from props
       const step = 3;
       const onKeyDown = (event) => {
         switch (event.key) {
           case 'PageUp':
             event.preventDefault();
-            onActiveCellToChange({
-              scrollToColumn: activeColumn,
-              scrollToRow: activeRow - step
-            });
+            onActiveCellToChange(scrollToPreviousPage({ pageSize: step, activeRow }));
             break;
 
           case 'PageDown':
             event.preventDefault();
-            onActiveCellToChange({
-              scrollToColumn: activeColumn,
-              scrollToRow: activeRow + step
-            });
+            onActiveCellToChange(scrollToNextPage({ pageSize: step, activeRow }));
             break;
         }
       };
@@ -261,11 +280,12 @@ storiesOf('Grid', module)
 
     return (
       <ActiveCellRenderer>
-        {({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow }) => (
+        {({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
           <PageStepper
             onActiveCellToChange={onActiveCellToChange}
             activeRow={scrollToRow}
-            activeColumn={scrollToColumn}
+            scrollToPreviousPage={scrollToPreviousPage}
+            scrollToNextPage={scrollToNextPage}
           >
             <ArrowKeyStepper
               columnCount={columnCount}
@@ -290,6 +310,7 @@ storiesOf('Grid', module)
                   onSectionRendered={onSectionRendered}
                   scrollToColumn={scrollToColumn}
                   scrollToRow={scrollToRow}
+                  scrollToAlignment={scrollToAlignment}
                 >
                 </Grid>
               )}
