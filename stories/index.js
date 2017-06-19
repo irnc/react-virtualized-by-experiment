@@ -168,16 +168,37 @@ function PageStepper({
   scrollToPreviousPage,
   scrollToNextPage,
 }) {
+  const switchToPreviousPage = () => {
+    onScrollToChange(scrollToPreviousPage({ pageSize, activeRow: scrollToRow }));
+  };
+  const switchToNextPage = () => {
+    onScrollToChange(scrollToNextPage({ rowCount, pageSize, activeRow: scrollToRow }));
+  };
   const onKeyDown = (event) => {
+    console.log(`PageStepper, ${event.key}`);
     switch (event.key) {
       case 'PageUp':
         event.preventDefault();
-        onScrollToChange(scrollToPreviousPage({ pageSize, activeRow: scrollToRow }));
+        switchToPreviousPage();
         break;
 
       case 'PageDown':
         event.preventDefault();
-        onScrollToChange(scrollToNextPage({ rowCount, pageSize, activeRow: scrollToRow }));
+        switchToNextPage();
+        break;
+
+      case 'ArrowUp':
+        event.preventDefault();
+        if (scrollToRow % pageSize === 0) {
+          switchToPreviousPage();
+        }
+        break;
+
+      case 'ArrowDown':
+        event.preventDefault();
+        if (scrollToRow % pageSize === (pageSize - 1)) {
+          switchToNextPage();
+        }
         break;
     }
   };
