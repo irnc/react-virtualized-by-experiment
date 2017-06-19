@@ -129,7 +129,7 @@ class RemoteListContainer extends React.Component {
           this.setState({ rowCount: 100 });
         }
         resolve();
-      }, 1000);
+      }, 2000);
     })
   }
 
@@ -464,7 +464,7 @@ storiesOf('Grid', module)
   .add('with infinite loader', () => {
     // Counts are provided from above.
     const columnCount = 1;
-    const pageSize = 3;
+    const pageSize = 6;
     const rowHeight = 100;
     const gridHeight = rowHeight * pageSize;
 
