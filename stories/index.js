@@ -32,6 +32,7 @@ class ActiveCellRenderer extends React.Component {
   state = {
     scrollToRow: 0,
     scrollToColumn: 0,
+    scrollToAlignment: 'auto',
   }
 
   cellRenderer = ({ columnIndex, key, rowIndex, style }) => {
@@ -52,14 +53,28 @@ class ActiveCellRenderer extends React.Component {
     )
   }
 
-  onActiveCellToChange = ({ scrollToColumn, scrollToRow }) => {
-    this.setState({ scrollToColumn, scrollToRow });
+  onActiveCellToChange = ({ scrollToColumn, scrollToRow, scrollToAlignment }) => {
+    this.setState({
+      // Reuse current column if it isn't set.
+      scrollToColumn: scrollToColumn || this.state.scrollToColumn,
+      scrollToRow,
+      // scrollToAlignment would be undefined when called from onScrollToChange
+      // of ArrowKeyStepper. In that case we navigate on one page, i.e.
+      // alignment should be auto.
+      scrollToAlignment: scrollToAlignment || 'auto',
+    });
   }
 
   render() {
     const { onActiveCellToChange, cellRenderer } = this;
-    const { scrollToColumn, scrollToRow } = this.state;
-    return this.props.children({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow });
+    const { scrollToColumn, scrollToRow, scrollToAlignment } = this.state;
+    return this.props.children({
+      onActiveCellToChange,
+      cellRenderer,
+      scrollToColumn,
+      scrollToRow,
+      scrollToAlignment,
+    });
   }
 }
 
