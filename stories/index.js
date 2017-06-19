@@ -78,6 +78,54 @@ class ActiveCellRenderer extends React.Component {
   }
 }
 
+const scrollToPreviousPage = ({ pageSize, activeRow }) => {
+  const adjustment = (activeRow % pageSize) + 1;
+
+  return {
+    scrollToRow: Math.max(0, activeRow - adjustment),
+    scrollToAlignment: 'end',
+  };
+};
+
+const scrollToNextPage = ({ rowCount, pageSize, activeRow }) => {
+  const adjustment = pageSize - (activeRow % pageSize);
+
+  return {
+    scrollToRow: Math.min(activeRow + adjustment, rowCount - 1),
+    scrollToAlignment: 'start',
+  };
+};
+
+
+function PageStepper({
+  onScrollToChange,
+  rowCount,
+  scrollToRow,
+  children,
+  scrollToPreviousPage,
+  scrollToNextPage,
+}) {
+  // TODO receive step from props
+  const step = 3;
+  const onKeyDown = (event) => {
+    switch (event.key) {
+      case 'PageUp':
+        event.preventDefault();
+        onScrollToChange(scrollToPreviousPage({ pageSize: step, activeRow: scrollToRow }));
+        break;
+
+      case 'PageDown':
+        event.preventDefault();
+        onScrollToChange(scrollToNextPage({ rowCount, pageSize: step, activeRow: scrollToRow }));
+        break;
+    }
+  };
+
+  return (
+    <div onKeyDown={onKeyDown}>{children}</div>
+  );
+}
+
 storiesOf('Grid', module)
   .add('with list of one item', () => (
     <Grid
@@ -230,54 +278,6 @@ storiesOf('Grid', module)
     const simultaneouslyVisibleRows = 3;
     const rowHeight = 100;
     const gridHeight = rowHeight * simultaneouslyVisibleRows;
-
-    const scrollToPreviousPage = ({ pageSize, activeRow }) => {
-      const adjustment = (activeRow % pageSize) + 1;
-
-      return {
-        scrollToRow: Math.max(0, activeRow - adjustment),
-        scrollToAlignment: 'end',
-      };
-    };
-
-    const scrollToNextPage = ({ rowCount, pageSize, activeRow }) => {
-      const adjustment = pageSize - (activeRow % pageSize);
-
-      return {
-        scrollToRow: Math.min(activeRow + adjustment, rowCount - 1),
-        scrollToAlignment: 'start',
-      };
-    };
-
-
-    function PageStepper({
-      onScrollToChange,
-      rowCount,
-      scrollToRow,
-      children,
-      scrollToPreviousPage,
-      scrollToNextPage,
-    }) {
-      // TODO receive step from props
-      const step = 3;
-      const onKeyDown = (event) => {
-        switch (event.key) {
-          case 'PageUp':
-            event.preventDefault();
-            onScrollToChange(scrollToPreviousPage({ pageSize: step, activeRow: scrollToRow }));
-            break;
-
-          case 'PageDown':
-            event.preventDefault();
-            onScrollToChange(scrollToNextPage({ rowCount, pageSize: step, activeRow: scrollToRow }));
-            break;
-        }
-      };
-
-      return (
-        <div onKeyDown={onKeyDown}>{children}</div>
-      );
-    }
 
     return (
       <ActiveCellRenderer>
