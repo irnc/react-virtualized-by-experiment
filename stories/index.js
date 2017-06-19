@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import { Grid, ArrowKeyStepper } from 'react-virtualized';
+import { Grid, ArrowKeyStepper, List } from 'react-virtualized';
 import Button from './Button';
 import Welcome from './Welcome';
 
@@ -28,14 +28,40 @@ function cellRenderer ({ columnIndex, key, rowIndex, style }) {
   )
 }
 
-class ActiveCellRenderer extends React.Component {
+class ActiveRenderer extends React.Component {
   state = {
     scrollToRow: 0,
     scrollToColumn: 0,
     scrollToAlignment: 'auto',
   }
 
-  cellRenderer = ({ columnIndex, key, rowIndex, style }) => {
+  onScrollToChange = ({ scrollToColumn, scrollToRow, scrollToAlignment }) => {
+    this.setState({
+      // Reuse current column if it isn't set.
+      scrollToColumn: scrollToColumn || this.state.scrollToColumn,
+      scrollToRow,
+      // scrollToAlignment would be undefined when called from onScrollToChange
+      // of ArrowKeyStepper. In that case we navigate on one page, i.e.
+      // alignment should be auto.
+      scrollToAlignment: scrollToAlignment || 'auto',
+    });
+  }
+
+  render() {
+    const { onScrollToChange, renderer } = this;
+    const { scrollToColumn, scrollToRow, scrollToAlignment } = this.state;
+    return this.props.children({
+      onScrollToChange,
+      renderer,
+      scrollToColumn,
+      scrollToRow,
+      scrollToAlignment,
+    });
+  }
+}
+
+class ActiveCellRenderer extends ActiveRenderer {
+  renderer = ({ columnIndex, key, rowIndex, style }) => {
     const borderColor = (rowIndex === this.state.scrollToRow) ? 'red' : 'blue';
     return (
       <div
@@ -51,30 +77,26 @@ class ActiveCellRenderer extends React.Component {
         {key}
       </div>
     )
-  }
+  };
+}
 
-  onActiveCellToChange = ({ scrollToColumn, scrollToRow, scrollToAlignment }) => {
-    this.setState({
-      // Reuse current column if it isn't set.
-      scrollToColumn: scrollToColumn || this.state.scrollToColumn,
-      scrollToRow,
-      // scrollToAlignment would be undefined when called from onScrollToChange
-      // of ArrowKeyStepper. In that case we navigate on one page, i.e.
-      // alignment should be auto.
-      scrollToAlignment: scrollToAlignment || 'auto',
-    });
-  }
-
-  render() {
-    const { onActiveCellToChange, cellRenderer } = this;
-    const { scrollToColumn, scrollToRow, scrollToAlignment } = this.state;
-    return this.props.children({
-      onActiveCellToChange,
-      cellRenderer,
-      scrollToColumn,
-      scrollToRow,
-      scrollToAlignment,
-    });
+class ActiveRowRenderer extends ActiveRenderer {
+  renderer = ({ index, key, style }) => {
+    const borderColor = (index === this.state.scrollToRow) ? 'red' : 'blue';
+    return (
+      <div
+        onClick={() => this.onScrollToChange({ scrollToColumn: 1, scrollToRow: index })}
+        key={key}
+        style={{
+          ...style,
+          boxSizing: 'border-box',
+          border: '5px solid',
+          borderColor,
+        }}
+      >
+        {key}
+      </div>
+    );
   }
 }
 
@@ -238,7 +260,7 @@ storiesOf('Grid', module)
 
     return (
       <ActiveCellRenderer>
-        {({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow }) => (
+        {({ onActiveCellToChange, renderer, scrollToColumn, scrollToRow }) => (
           <ArrowKeyStepper
             columnCount={columnCount}
             rowCount={rowCount}
@@ -257,7 +279,7 @@ storiesOf('Grid', module)
                 rowHeight={rowHeight}
                 columnCount={columnCount}
                 rowCount={rowCount}
-                cellRenderer={cellRenderer}
+                cellRenderer={renderer}
                 // required to be passed for ArrowKeyStepper to work
                 onSectionRendered={onSectionRendered}
                 scrollToColumn={scrollToColumn}
@@ -280,10 +302,10 @@ storiesOf('Grid', module)
 
     return (
       <ActiveCellRenderer>
-        {({ onActiveCellToChange, cellRenderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
+        {({ onScrollToChange, renderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
           <PageStepper
             rowCount={rowCount}
-            onScrollToChange={onActiveCellToChange}
+            onScrollToChange={onScrollToChange}
             pageSize={pageSize}
             scrollToRow={scrollToRow}
             scrollToPreviousPage={scrollToPreviousPage}
@@ -294,7 +316,7 @@ storiesOf('Grid', module)
               rowCount={rowCount}
               mode="cells"
               isControlled={true}
-              onScrollToChange={onActiveCellToChange}
+              onScrollToChange={onScrollToChange}
               scrollToColumn={scrollToColumn}
               scrollToRow={scrollToRow}
             >
@@ -307,7 +329,7 @@ storiesOf('Grid', module)
                   rowHeight={rowHeight}
                   columnCount={columnCount}
                   rowCount={rowCount}
-                  cellRenderer={cellRenderer}
+                  cellRenderer={renderer}
                   // required to be passed for ArrowKeyStepper to work
                   onSectionRendered={onSectionRendered}
                   scrollToColumn={scrollToColumn}
@@ -320,5 +342,61 @@ storiesOf('Grid', module)
           </PageStepper>
         )}
       </ActiveCellRenderer>
+    );
+  })
+  .add('with steppers on a List', () => {
+    // Counts are provided from above.
+    const columnCount = 1;
+    const rowCount = 10;
+    const pageSize = 3;
+    const rowHeight = 100;
+    const gridHeight = rowHeight * pageSize;
+
+    return (
+      <ActiveRowRenderer>
+        {({ onScrollToChange, renderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
+          <PageStepper
+            rowCount={rowCount}
+            onScrollToChange={onScrollToChange}
+            pageSize={pageSize}
+            scrollToRow={scrollToRow}
+            scrollToPreviousPage={scrollToPreviousPage}
+            scrollToNextPage={scrollToNextPage}
+          >
+            <ArrowKeyStepper
+              columnCount={columnCount}
+              rowCount={rowCount}
+              mode="cells"
+              isControlled={true}
+              onScrollToChange={onScrollToChange}
+              scrollToColumn={scrollToColumn}
+              scrollToRow={scrollToRow}
+            >
+              {({ onSectionRendered, scrollToColumn, scrollToRow }) => (
+                <List
+                  // required Grid props
+                  width={500}
+                  height={gridHeight}
+                  rowHeight={rowHeight}
+                  rowCount={rowCount}
+                  rowRenderer={renderer}
+                  // required to be passed for ArrowKeyStepper to work
+                  onRowsRendered={({ startIndex, stopIndex }) => {
+                    onSectionRendered({
+                      columnStartIndex: 1,
+                      columnStopIndex: 1,
+                      rowStartIndex: startIndex,
+                      rowStopIndex: stopIndex,
+                    });
+                  }}
+                  scrollToIndex={scrollToRow}
+                  scrollToAlignment={scrollToAlignment}
+                >
+                </List>
+              )}
+            </ArrowKeyStepper>
+          </PageStepper>
+        )}
+      </ActiveRowRenderer>
     );
   });
