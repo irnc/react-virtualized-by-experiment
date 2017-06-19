@@ -181,7 +181,7 @@ storiesOf('Grid', module)
       </ArrowKeyStepper>
     );
   })
-  .add('with active cell tracking', (...a) => {
+  .add('with active cell tracking', () => {
     // Counts are provided from above.
     const columnCount = 1;
     const rowCount = 10;
@@ -223,7 +223,7 @@ storiesOf('Grid', module)
       </ActiveCellRenderer>
     );
   })
-  .add('with page stepper', (...a) => {
+  .add('with page stepper', () => {
     // Counts are provided from above.
     const columnCount = 1;
     const rowCount = 10;
