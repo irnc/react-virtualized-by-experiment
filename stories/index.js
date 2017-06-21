@@ -34,7 +34,7 @@ class ActiveCellRenderer extends ActiveRenderer {
     const borderColor = (rowIndex === this.state.scrollToRow) ? 'red' : 'blue';
     return (
       <div
-        onClick={() => this.onActiveCellToChange({ scrollToColumn: columnIndex, scrollToRow: rowIndex })}
+        onClick={() => this.onScrollToChange({ scrollToColumn: columnIndex, scrollToRow: rowIndex })}
         key={key}
         style={{
           ...style,
