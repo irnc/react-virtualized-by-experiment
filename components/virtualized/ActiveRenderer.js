@@ -19,6 +19,11 @@ export default class ActiveRenderer extends React.Component {
     });
   }
 
+  isCellActive(rowIndex: number, columnIndex: number) {
+    const { scrollToRow, scrollToColumn } = this.state;
+    return rowIndex === scrollToRow && columnIndex === scrollToColumn;
+  }
+
   render() {
     const { onScrollToChange, renderer } = this;
     const { scrollToColumn, scrollToRow, scrollToAlignment } = this.state;
