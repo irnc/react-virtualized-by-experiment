@@ -5,6 +5,7 @@ import { linkTo } from '@storybook/addon-links';
 import { withKnobs, select } from '@storybook/addon-knobs';
 import { Grid, ArrowKeyStepper, List, InfiniteLoader } from 'react-virtualized';
 import ActiveRenderer from '../components/virtualized/ActiveRenderer';
+import CellRenderer from '../components/CellRenderer';
 import Button from './Button';
 import Welcome from './Welcome';
 
@@ -27,26 +28,6 @@ function cellRenderer ({ columnIndex, key, rowIndex, style }) {
       {key}
     </div>
   )
-}
-
-class ActiveCellRenderer extends ActiveRenderer {
-  renderer = ({ columnIndex, key, rowIndex, style }) => {
-    const borderColor = (rowIndex === this.state.scrollToRow) ? 'red' : 'blue';
-    return (
-      <div
-        onClick={() => this.onScrollToChange({ scrollToColumn: columnIndex, scrollToRow: rowIndex })}
-        key={key}
-        style={{
-          ...style,
-          boxSizing: 'border-box',
-          border: '5px solid',
-          borderColor,
-        }}
-      >
-        {key}
-      </div>
-    )
-  };
 }
 
 class ActiveRowRenderer extends ActiveRenderer {
@@ -289,7 +270,7 @@ storiesOf('Grid', module)
     const gridHeight = rowHeight * simultaneouslyVisibleRows;
 
     return (
-      <ActiveCellRenderer>
+      <CellRenderer>
         {({ onActiveCellToChange, renderer, scrollToColumn, scrollToRow }) => (
           <ArrowKeyStepper
             columnCount={columnCount}
@@ -319,7 +300,7 @@ storiesOf('Grid', module)
             )}
           </ArrowKeyStepper>
         )}
-      </ActiveCellRenderer>
+      </CellRenderer>
     );
   })
   .add('with page stepper', () => {
@@ -331,7 +312,7 @@ storiesOf('Grid', module)
     const gridHeight = rowHeight * pageSize;
 
     return (
-      <ActiveCellRenderer>
+      <CellRenderer>
         {({ onScrollToChange, renderer, scrollToColumn, scrollToRow, scrollToAlignment }) => (
           <PageStepper
             rowCount={rowCount}
@@ -371,7 +352,7 @@ storiesOf('Grid', module)
             </ArrowKeyStepper>
           </PageStepper>
         )}
-      </ActiveCellRenderer>
+      </CellRenderer>
     );
   })
   .add('with steppers on a List', () => {
