@@ -1,7 +1,10 @@
 import React from 'react';
 
 type Props = {
-  // Number of data rows in collection.
+  /*
+  Number of data rows in collection. Will be passed to custom scrollToNextPage,
+  which may update scroll only after check that next page exists.
+  */
   rowCount: number,
 };
 
