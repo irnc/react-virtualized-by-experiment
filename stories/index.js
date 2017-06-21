@@ -4,6 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import { withKnobs, select } from '@storybook/addon-knobs';
 import { Grid, ArrowKeyStepper, List, InfiniteLoader } from 'react-virtualized';
+import ActiveRenderer from '../components/virtualized/ActiveRenderer';
 import Button from './Button';
 import Welcome from './Welcome';
 
@@ -26,38 +27,6 @@ function cellRenderer ({ columnIndex, key, rowIndex, style }) {
       {key}
     </div>
   )
-}
-
-class ActiveRenderer extends React.Component {
-  state = {
-    scrollToRow: 0,
-    scrollToColumn: 0,
-    scrollToAlignment: 'auto',
-  }
-
-  onScrollToChange = ({ scrollToColumn, scrollToRow, scrollToAlignment }) => {
-    this.setState({
-      // Reuse current column if it isn't set.
-      scrollToColumn: scrollToColumn || this.state.scrollToColumn,
-      scrollToRow,
-      // scrollToAlignment would be undefined when called from onScrollToChange
-      // of ArrowKeyStepper. In that case we navigate on one page, i.e.
-      // alignment should be auto.
-      scrollToAlignment: scrollToAlignment || 'auto',
-    });
-  }
-
-  render() {
-    const { onScrollToChange, renderer } = this;
-    const { scrollToColumn, scrollToRow, scrollToAlignment } = this.state;
-    return this.props.children({
-      onScrollToChange,
-      renderer,
-      scrollToColumn,
-      scrollToRow,
-      scrollToAlignment,
-    });
-  }
 }
 
 class ActiveCellRenderer extends ActiveRenderer {
