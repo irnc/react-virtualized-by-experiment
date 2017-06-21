@@ -7,11 +7,17 @@ export default class ActiveRenderer extends React.Component {
     scrollToAlignment: 'auto',
   }
 
+  // Could be called on partial options, e.g. scrollToColumn omited
   onScrollToChange = ({ scrollToColumn, scrollToRow, scrollToAlignment }) => {
+    if (scrollToColumn !== undefined) {
+      this.setState({ scrollToColumn });
+    }
+
+    if (scrollToRow !== undefined) {
+      this.setState({ scrollToRow });
+    }
+
     this.setState({
-      // Reuse current column if it isn't set.
-      scrollToColumn: scrollToColumn || this.state.scrollToColumn,
-      scrollToRow,
       // scrollToAlignment would be undefined when called from onScrollToChange
       // of ArrowKeyStepper. In that case we navigate on one page, i.e.
       // alignment should be auto.
