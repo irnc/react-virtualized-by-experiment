@@ -5,6 +5,7 @@ import { linkTo } from '@storybook/addon-links';
 import { withKnobs, select } from '@storybook/addon-knobs';
 import { Grid, ArrowKeyStepper, List, InfiniteLoader } from 'react-virtualized';
 import ActiveRenderer from '../components/virtualized/ActiveRenderer';
+import PageStepper from '../components/virtualized/PageStepper';
 import CellRenderer from '../components/CellRenderer';
 import Button from './Button';
 import Welcome from './Welcome';
@@ -107,56 +108,6 @@ const scrollToNextPage = ({ rowCount, pageSize, activeRow }) => {
     scrollToAlignment: 'start',
   };
 };
-
-
-function PageStepper({
-  onScrollToChange,
-  rowCount,
-  pageSize,
-  scrollToRow,
-  children,
-  scrollToPreviousPage,
-  scrollToNextPage,
-}) {
-  const switchToPreviousPage = () => {
-    onScrollToChange(scrollToPreviousPage({ pageSize, activeRow: scrollToRow }));
-  };
-  const switchToNextPage = () => {
-    onScrollToChange(scrollToNextPage({ rowCount, pageSize, activeRow: scrollToRow }));
-  };
-  const onKeyDown = (event) => {
-    console.log(`PageStepper, ${event.key}`);
-    switch (event.key) {
-      case 'PageUp':
-        event.preventDefault();
-        switchToPreviousPage();
-        break;
-
-      case 'PageDown':
-        event.preventDefault();
-        switchToNextPage();
-        break;
-
-      case 'ArrowUp':
-        event.preventDefault();
-        if (scrollToRow % pageSize === 0) {
-          switchToPreviousPage();
-        }
-        break;
-
-      case 'ArrowDown':
-        event.preventDefault();
-        if (scrollToRow % pageSize === (pageSize - 1)) {
-          switchToNextPage();
-        }
-        break;
-    }
-  };
-
-  return (
-    <div onKeyDown={onKeyDown}>{children}</div>
-  );
-}
 
 storiesOf('Grid', module)
   .add('with list of one item', () => (
