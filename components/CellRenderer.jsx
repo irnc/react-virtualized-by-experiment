@@ -3,7 +3,7 @@ import ActiveRenderer from './virtualized/ActiveRenderer';
 
 export default class CellRenderer extends ActiveRenderer {
   renderer = ({ columnIndex, key, rowIndex, style }) => {
-    const borderColor = (rowIndex === this.state.scrollToRow) ? 'red' : 'blue';
+    const borderColor = this.isCellActive(rowIndex, columnIndex) ? 'red' : 'blue';
     return (
       <div
         onClick={() => this.onScrollToChange({ scrollToColumn: columnIndex, scrollToRow: rowIndex })}
