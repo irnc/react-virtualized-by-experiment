@@ -6,6 +6,7 @@ import { withKnobs, select } from '@storybook/addon-knobs';
 import { Grid, ArrowKeyStepper, List, InfiniteLoader } from 'react-virtualized';
 import ActiveRenderer from '../components/virtualized/ActiveRenderer';
 import PageStepper from '../components/virtualized/PageStepper';
+import { scrollToPreviousPage, scrollToNextPage } from '../components/virtualized/FixedPageView';
 import CellRenderer from '../components/CellRenderer';
 import ActiveRowRenderer from '../components/RowRenderer';
 import Button from './Button';
@@ -31,24 +32,6 @@ function cellRenderer ({ columnIndex, key, rowIndex, style }) {
     </div>
   )
 }
-
-const scrollToPreviousPage = ({ pageSize, activeRow }) => {
-  const adjustment = (activeRow % pageSize) + 1;
-
-  return {
-    scrollToRow: Math.max(0, activeRow - adjustment),
-    scrollToAlignment: 'end',
-  };
-};
-
-const scrollToNextPage = ({ rowCount, pageSize, activeRow }) => {
-  const adjustment = pageSize - (activeRow % pageSize);
-
-  return {
-    scrollToRow: Math.min(activeRow + adjustment, rowCount - 1),
-    scrollToAlignment: 'start',
-  };
-};
 
 storiesOf('Grid', module)
   .add('with list of one item', () => (
