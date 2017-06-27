@@ -10,6 +10,14 @@ export default class RemoteListContainer extends React.Component {
     return !!this.state.list[index];
   }
 
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   loadMoreRows = ({ startIndex, stopIndex }) => {
     console.log(`loadMoreRows ${startIndex}, ${stopIndex}`);
     return new Promise((resolve) => {
@@ -18,9 +26,13 @@ export default class RemoteListContainer extends React.Component {
         for (let i = startIndex; i <= stopIndex; i++) {
           list[i] = Math.random();
         }
-        this.setState({ list });
-        if (this.state.rowCount === 0) {
-          this.setState({ rowCount: 100 });
+
+        if (this.mounted) {
+          this.setState({ list });
+
+          if (this.state.rowCount === 0) {
+            this.setState({ rowCount: 100 });
+          }
         }
         resolve();
       }, 2000);
