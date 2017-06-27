@@ -11,6 +11,7 @@ import CellRenderer from '../components/CellRenderer';
 import ActiveRowRenderer from '../components/RowRenderer';
 import VerticalList from '../components/VerticalList';
 import HorizontalList from '../components/HorizontalList';
+import TwoDimensionUnsyncList from '../components/TwoDimensionUnsyncList';
 import Button from './Button';
 import Welcome from './Welcome';
 
@@ -294,3 +295,6 @@ storiesOf('VerticalList', module)
 
 storiesOf('HorizontalList', module)
   .add('with infinite loader', () => <HorizontalList />)
+
+storiesOf('TwoDimensionUnsyncList', module)
+  .add('2D unsync list', () => <TwoDimensionUnsyncList />)
